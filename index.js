@@ -24,6 +24,7 @@ async function run() {
 
     const menuCollection = client.db("tasteBud").collection("menu");
     const reviewsCollection = client.db("tasteBud").collection("reviews");
+    const cartCollection = client.db("tasteBud").collection("carts");
 
     /* get menu */
     app.get("/menu", async (req, res) => {
@@ -45,7 +46,26 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.delete("/carts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.post("/carts", async (req, res) => {
+      const item = req.body;
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+
+    // await client.db("admin").command({ ping: 1 });
     console.log("connected to MongoDB!");
   } finally {
     // await client.close();
